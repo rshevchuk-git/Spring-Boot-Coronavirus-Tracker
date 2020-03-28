@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Coronavirus Tracker</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.2/dist/latest/bootstrap-autocomplete.min.js"></script>
+
+
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/index.css}" />
+    <script>
+
+    $(function () {
+        $("#countries").autocomplete({
+            source: "/countries",
+            minLength: 2
+        });
+    });
+
+    </script>
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Coronavirus Tracker</h1>
+    <p>The current total number of reported cases</p>
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${totalReportedCases}"></h1>
+        <p class="lead">Total cases reported as of today</p>
+        <hr class="my-4">
+        <p>
+            <span>New cases registered since the previous day : </span>
+            <span th:text="${totalNewCases}"></span>
+        </p>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Confirmed Cases and Deaths by Country</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto"></ul>
+            <form class="form-inline my-2 my-lg-0" action="/search" method="get">
+                <input class="form-control mr-sm-2" id="countries" type="search" th:name="country" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+    <table class="table" data-toggle="table" data-sortable="true">
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th data-sortable="true">Total Number of Cases</th>
+                <th data-sortable="true">Total Number of Deaths</th>
+                <th data-sortable="true">New Reported Cases</th>
+                <th data-sortable="true">New Deaths</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="statistics : ${locationStat}">
+                <td th:text="${statistics.countryName}"></td>
+                <td th:text="${statistics.latestCases}">0</td>
+                <td th:text="${statistics.latestDeaths}">0</td>
+                <td th:text="${statistics.deltaOfDay}">0</td>
+                <td th:text="${statistics.deltaOfDeaths}">0</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+
+
+<script>
+    var $table = $('#table');
+
+    $(function() {
+        $table.bootstrapTable();
+
+        $('.toolbar input').change(function () {
+            var classes = 'table';
+
+            $table.bootstrapTable('refreshOptions', {
+                classes: classes.join(' ')
+            })
+        })
+    })
+</script>
+</body>
+
+</html>
