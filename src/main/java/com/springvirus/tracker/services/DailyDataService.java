@@ -13,10 +13,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -93,12 +90,9 @@ public class DailyDataService {
 
     public List<LocationStatistics> getAllCases(){
 
-        List<LocationStatistics> finalCountryStat = new ArrayList<>();
-        stats.stream()
-                .collect(Collectors.groupingBy(LocationStatistics::getCountryName))
-                .forEach((country, statistics) -> finalCountryStat.add(mergeAllCountryRegions(country,statistics)));
-
-        return finalCountryStat.stream()
+        return stats.stream()
+                .collect(Collectors.groupingBy(LocationStatistics::getCountryName, Collectors.reducing(new LocationStatistics(), DailyDataService::combineStats)))
+                .values().stream()
                 .sorted(Comparator.comparing(LocationStatistics::getLatestCases).reversed())
                 .collect(Collectors.toList());
     }
@@ -107,23 +101,12 @@ public class DailyDataService {
 
         return stats.stream()
                 .filter(locationStatistics -> locationStatistics.getCountryName().equals(countryName))
-                .reduce(new LocationStatistics(countryName, 0, 0, 0, 0),
-                        DailyDataService::combineStats,
-                        DailyDataService::combineStats);
-    }
-
-    private static LocationStatistics mergeAllCountryRegions(String country, List<LocationStatistics> statistics){
-
-        return statistics.stream()
-                .reduce(new LocationStatistics(country, 0, 0, 0, 0),
-                        DailyDataService::combineStats,
-                        DailyDataService::combineStats);
-
+                .reduce(new LocationStatistics(), DailyDataService::combineStats);
     }
 
     private static LocationStatistics combineStats(LocationStatistics l1, LocationStatistics l2){
 
-        return new LocationStatistics(l1.getCountryName(),
+        return new LocationStatistics(l2.getCountryName(),
                 (l1.getLatestCases() + l2.getLatestCases()),
                 (l1.getDeltaOfDay() + l2.getDeltaOfDay()),
                 (l1.getLatestDeaths() + l2.getLatestDeaths()),
