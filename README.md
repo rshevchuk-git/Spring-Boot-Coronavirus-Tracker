@@ -1,5 +1,7 @@
 # Spring-Boot-Coronavirus-Tracker
 
+Link to demo:  https://covid-19t.herokuapp.com/
+
 Web application allowing to track the current information about the Coronavirus disease.\
 Using Spring Boot, Spring MVC, Thymeleaf. ( Spring REST may appear in a future )
 
